@@ -14,7 +14,7 @@ class Tile {
 
 	canvasCoord() {
 		return { x: this.board.tileSize * this.gridX + this.board.transX,
-				 y: this.board.tileSize * this.gridY + this.board.transY }
+				 y: this.board.tileSize * this.gridY + this.board.transY };
 	}
 
 	moveTile(x, y) {
@@ -40,18 +40,17 @@ class Tile {
 			y = this.gridY,
 			layer = 1;
 
-		loop:
 		while (true) {
 			a = [-layer, layer];
 			for (var i = 0; i < a.length; i++) {
 				z = a[i];
 
-				if (this.setGridCoord(x + z, y - layer)) break loop; 
-				if (this.setGridCoord(x + z, y + layer)) break loop; 
+				if (this.setGridCoord(x + z, y - layer)) return; 
+				if (this.setGridCoord(x + z, y + layer)) return; 
 
 				for (var j = -layer + 1; j < layer; j++) {
-					if (this.setGridCoord(x + z, y + j)) break loop; 
-					if (this.setGridCoord(x + j, y + z)) break loop; 
+					if (this.setGridCoord(x + z, y + j)) return; 
+					if (this.setGridCoord(x + j, y + z)) return; 
 				}
 			}
 
@@ -74,5 +73,7 @@ class Tile {
 		context.fillText(this.letter, x - rad / 2, y + rad / 2);
 	}
 
-	// update() {  }
+	update() {
+		
+	}
 }
