@@ -14,8 +14,52 @@ class Tile {
 	}
 }
 
-class Board {
+class Pile {
+	constructor() {
+		this.alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+		this.counts   = [13, 3, 3, 6, 18, 3, 4, 3, 12, 2, 2, 5, 3, 8, 11, 3, 2, 9, 6, 9, 6, 3, 3, 2, 3, 2];
+		this.tiles    = [];
 
+		this.addTiles();
+		this.shuffleTiles();
+	}
+
+	addTiles() {
+		for (var i = 0; i < this.alphabet.length; i++){
+			var c = this.alphabet.charAt(i);
+			for (var j = 0; j < this.counts[i]; j++) {
+				this.tiles.push(new Tile(c));
+			}
+		}
+	}
+
+	shuffleTiles() {
+		var m = this.tiles.length;
+
+		while (m) {
+			var i = Math.floor(Math.random() * m--);
+			var t = this.tiles[m];
+			this.tiles[m] = this.tiles[i];
+			this.tiles[i] = t;
+		}
+	}
+
+	take(n) {
+		if (n > this.tiles.length) throw "not enough tiles";
+		var toTake = [];
+		for (var i = 0; i < n; i ++) {
+			toTake.push(this.tiles.pop());
+		}
+
+		return toTake;
+	}
+
+	pop() {
+		return this.tiles.pop();
+	}
+}
+
+class Board {
 	constructor(width, height) {
 		this.dictionary = wordsDictionary;
 
@@ -25,8 +69,7 @@ class Board {
 		this.tileSize = 50;
 		this.tiles = []; // hold tiles
 		this.constructGrid(); // hold letters to evaluate
-		this.constructPile();
-		this.shufflePile();
+		this.pile = new Pile();
 	}
 
 	constructGrid() {
@@ -40,35 +83,10 @@ class Board {
 		}
 	}
 
-	constructPile() {
-		var alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-		var counts   = [13, 3, 3, 6, 18, 3, 4, 3, 12, 2, 2, 5, 3, 8, 11, 3, 2, 9, 6, 9, 6, 3, 3, 2, 3, 2];
-
-		this.pile = [];
-
-		for (var i = 0; i < alphabet.length; i++){
-			var c = alphabet.charAt(i);
-			for (var j = 0; j < counts[i]; j++) {
-				this.pile.push(new Tile(c));
-			}
-		}
-	}
-
-	shufflePile() {
-		var m = this.pile.length;
-
-		while (m) {
-			var i = Math.floor(Math.random() * m--);
-			var t = this.pile[m];
-			this.pile[m] = this.pile[i];
-			this.pile[i] = t;
-		}
-	}
-
 	setBoardForPlayerOne(numTiles) {
 		for (var i = 0; i < numTiles; i++) {
 			var keepGoing = true;
-			while (keepGoing){
+			while (keepGoing) {
 				var x = Math.floor(Math.random()*10 + this.height/2.0 - 10);
 				var y = Math.floor(Math.random()*10 + this.width/2.0  - 10);
 				if (this.grid[x][y] === null) {
@@ -182,10 +200,10 @@ class Board {
 	}
 
 	transpose(matrix) {
-		var x = matrix[0].map(function (_, col) { 
-			return matrix.map(function (row) { 
-				return row[col]; 
-			}); 
+		var x = matrix[0].map(function (_, col) {
+			return matrix.map(function (row) {
+				return row[col];
+			});
 		});
 		return x;
 	}
@@ -196,18 +214,18 @@ class Board {
 		});
 
 		if (tgrid==null || tgrid.length==0 || tgrid[0].length==0) return 0;
-		
+
 		function merge(i, j){
 		    //validity checking
 		    if(i<0 || j<0 || i>tgrid.length-1 || j>tgrid[0].length-1)
 		        return;
-		 
+
 		    //if current cell is water or visited
 		    if(tgrid[i][j] === null) return;
-		 
+
 		    //set visited cell to null
 		    tgrid[i][j] = null;
-		 
+
 		    //merge all adjacent land
 		    merge(i-1, j);
 		    merge(i+1, j);
@@ -216,7 +234,7 @@ class Board {
 		}
 
 		var count = 0;
-	 
+
 	    for (var i=0; i<tgrid.length; i++) {
 	        for (var j=0; j<tgrid[0].length; j++) {
 	            if(tgrid[i][j] !== null){

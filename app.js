@@ -4,7 +4,6 @@ class App {
 
 	constructor() {
 		this.theCanvas = document.getElementById("canvasOne");
-		console.log(this.theCanvas.constructor.name);
 		this.validateButton = document.getElementById('validateButton');
 		this.context = this.theCanvas.getContext("2d");
 		this.easeAmount = 0.40;
@@ -28,14 +27,12 @@ class App {
 		this.startCoords = [0, 0];
 		this.context.setTransform(1, 0, 0, 1, -300, -600);
 		this.drawScreen();
-		var that = this;
 
 		var clamp = function(num, min, max) {
 			return (num < min) ? min : ((num > max) ? max : num);
 		};
 
 		this.theCanvas.onmousedown = function(e) {
-			console.log(that);
 			app.mouseDownListener(e);
 			if (app.dragging) return;
 			app.isDown = true;
@@ -63,7 +60,7 @@ class App {
 
 		    // set the canvas' transformation matrix by setting the amount of movement:
 		    // 1  0  dx
-		    // 0  1  dy 
+		    // 0  1  dy
 		    // 0  0  1
 
 		    app.context.setTransform(1, 0, 0, 1, x - app.startCoords[0], y - app.startCoords[1]);
@@ -76,7 +73,7 @@ class App {
 		var bRect = app.theCanvas.getBoundingClientRect();
 		var mouseX = (evt.clientX - bRect.left)*(app.theCanvas.width/bRect.width);
 		var mouseY = (evt.clientY - bRect.top)*(app.theCanvas.height/bRect.height);
-				
+
 		//find which tile was clicked
 		for (var i = 0; i < app.board.tiles.length; i++) {
 			if	(app.hitTest(app.board.tiles[i], mouseX, mouseY)) {
@@ -86,7 +83,7 @@ class App {
 				app.dragIndex = i;
 			}
 		}
-		
+
 		if (app.dragging) {
 			window.addEventListener("mousemove", app.mouseMoveListener, false);
 
@@ -95,18 +92,18 @@ class App {
 			// We read record the point on this object where the mouse is "holding" it:
 			app.dragHoldX = mouseX - app.draggedTile.worldX;
 			app.dragHoldY = mouseY - app.draggedTile.worldY;
-			
+
 			//The "target" position is where the object should be if it were to move there instantaneously. But we will
 			//set up the code so that this target position is approached gradually, producing a smooth motion.
 			app.targetX = mouseX - app.dragHoldX;
 			app.targetY = mouseY - app.dragHoldY;
-			
+
 			//start timer
 			app.timer = setInterval(app.onTimerTick, 1000/60);
 		}
 		// app.theCanvas.removeEventListener("mousedown", app.mouseDownListener, false);
 		window.addEventListener("mouseup", app.mouseUpListener, false);
-		
+
 		//code below prevents the mouse down from having an effect on the main browser window:
 		if (evt.preventDefault) {
 			evt.preventDefault();
@@ -179,13 +176,13 @@ class App {
 			maxY 	 = app.theCanvas.height - shapeRad,
 			mouseX 	 = (evt.clientX - bRect.left) * (app.theCanvas.width/bRect.width),
 			mouseY 	 = (evt.clientY - bRect.top) * (app.theCanvas.height/bRect.height);
-		
+
 		//clamp x and y positions to prevent object from dragging outside of canvas
 		var posX = mouseX - app.dragHoldX;
 		posX = (posX < minX) ? minX : ((posX > maxX) ? maxX : posX);
 		var posY = mouseY - app.dragHoldY;
 		posY = (posY < minY) ? minY : ((posY > maxY) ? maxY : posY);
-		
+
 		app.targetX = posX;
 		app.targetY = posY;
 	}
