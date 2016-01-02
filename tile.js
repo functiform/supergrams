@@ -1,38 +1,98 @@
 'use strict';
 
+function clamp(num, min, max) {
+	return (num < min) ? min : ((num > max) ? max : num);
+}
+
 class Tile {
+
 	constructor(letter, board) {
 		this.letter = letter;
 		this.board = board;
+
 		this.gridX = -1;
 		this.gridY = -1;
+
 		this.targetX = -1.0;
 		this.targetY = -1.0;
+
 		this.currentX = -1.0;
 		this.currentY = -1.0;
+
+		this.dragging = false;
+
+		this.setEaseAmount(0.3);
+	}
+
+	startDragging() {
+		this.dragging = true;
+	}
+
+	snapToGridX(n) {
+		return clamp(Math.round(n), 0, this.board.width - 1);
+	}
+
+	snapToGridY(n) {
+		return clamp(Math.round(n), 0, this.board.height - 1);
+	}
+
+	stopDragging() {
+		this.dragging = false;
+		var x = this.snapToGridX(this.targetX),
+			y = this.snapToGridY(this.targetY);
+		this.move(x, y);
 	}
 
 	canvasCoord() {
-		return { x: this.board.tileSize * this.gridX + this.board.transX,
-				 y: this.board.tileSize * this.gridY + this.board.transY };
+		return { x: this.board.tileSize * this.currentX + this.board.transX,
+				 y: this.board.tileSize * this.currentY + this.board.transY };
 	}
 
-	moveTile(x, y) {
-		var otherTile = this.board.tile(x, y)
+	move(x, y) {
+		var isSameTile = x === this.gridX && y === this.gridY;
+
+		if (isSameTile) {
+			this.targetX = x;
+			this.targetY = y;
+			return;
+		}
+
+		var otherTile = this.board.tile(x, y);
 		if (otherTile) { otherTile.moveToClosest(); }
-		setGridCoord(x, y);
+
+		console.log(otherTile);
+		console.log(this);
+
+		this.setGridCoord(x, y); // should be empty at this point
 	}
 
 	setGridCoord(x, y) {
 		if (this.board.tile(x, y)) return false;
 
+		if (this.gridX !== -1 && this.gridY !== -1) {
+			this.board.grid[this.gridX][this.gridY] = null;  // TODO: need to delegate grid changes to Board class only
+		}
+
 		this.gridX = x;
 		this.gridY = y;
+		this.targetX = x;
+		this.targetY = y;
+
+		this.board.grid[this.gridX][this.gridY] = this; // TODO: need to delegate grid changes to Board class only
+
 		return true;
 	}
 
 	inPile() {
-		return gridX === -1 && gridY === -1;
+		return this.gridX === -1 && this.gridY === -1;
+	}
+
+	inMotion() {
+		return !(this.targetX === -1 && this.targetY === -1) || (this.currentX === this.targetX && this.currentY === this.targetY);
+	}
+
+	isDragging() {
+		return this.dragging;
 	}
 
 	moveToClosest() {
@@ -41,9 +101,9 @@ class Tile {
 			layer = 1;
 
 		while (true) {
-			a = [-layer, layer];
+			var a = [-layer, layer];
 			for (var i = 0; i < a.length; i++) {
-				z = a[i];
+				var z = a[i];
 
 				if (this.setGridCoord(x + z, y - layer)) return; 
 				if (this.setGridCoord(x + z, y + layer)) return; 
@@ -58,22 +118,54 @@ class Tile {
 		}
 	}
 
+	worldToGridX(x) {
+		return (x - this.board.transX) / this.board.tileSize;
+	}
+
+	worldToGridY(y) {
+		return (y - this.board.transY) / this.board.tileSize;
+	}
+
+	gridToWorld(x) {
+		return x * this.board.tileSize + this.board.transX;
+	}
+
+	gridToWorld(y) {
+		return y * this.board.tileSize + this.board.transY;
+	}
+
+	setTarget(x, y) {
+		this.targetX = this.worldToGridX(x);
+		this.targetY = this.worldToGridY(y);
+	}
+
+	setEaseAmount(amt){
+		this.easeAmount = amt;
+	}
+
+	removeTarget() {
+		this.targetX = -1.00;
+		this.targetY = -1.00;
+	}
+
 	draw(context) {
-		var coord = this.canvasCoord(),
-			x = coord.x,
-			y = coord.y,
+		var x = this.board.tileSize * this.currentX,
+			y = this.board.tileSize * this.currentY,
 			rad = this.board.tileSize / 2;
 
 		context.fillStyle = "#FFFFFF";
 		context.fillRect(x-rad, y-rad, rad * 2, rad * 2);
 		context.strokeRect(x-rad, y-rad, rad * 2, rad * 2);
-		// draw letter
+		
 		context.fillStyle = "#000000";
 		context.font = "40px Helvetica";
 		context.fillText(this.letter, x - rad / 2, y + rad / 2);
 	}
 
 	update() {
-		
+		if (this.inMotion()) {
+			this.currentX += this.easeAmount * (this.targetX - this.currentX);
+			this.currentY += this.easeAmount * (this.targetY - this.currentY);
+		}
 	}
 }

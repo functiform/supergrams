@@ -1,19 +1,5 @@
 'use strict';
 
-class Tile {
-	constructor(letter) {
-		this.letter = letter;
-
-		// real drawing coordinates
-		this.worldX = -1;
-		this.worldY = -1;
-
-		// board coordinates
-		this.x = -1;
-		this.y = -1;
-	}
-}
-
 class Board {
 
 	constructor(width, height) {
@@ -23,10 +9,74 @@ class Board {
 		this.height = width;
 
 		this.tileSize = 50;
+		this.transX = 0;
+		this.transY = 0;
+
+		this.shifting = false;
+
+		this.easeAmount = 0.40;
+
 		this.tiles = []; // hold tiles
+		this.draggedTile = null;
+
 		this.constructGrid(); // hold letters to evaluate
 		this.constructPile();
 		this.shufflePile();
+	}
+
+	setTransX(x) {
+		this.transX = x;
+	}
+
+	setTransY(y) {
+		this.transY = y;
+	}
+
+	tile(x, y) {
+		return this.grid[x][y];
+	}
+
+	hitTest(tile, mx, my) {
+		var coord = tile.canvasCoord(),
+			x = coord.x,
+			y = coord.y,
+			halfsize = this.tileSize / 2;
+
+		return mx > x - halfsize
+		    && mx < x + halfsize
+		    && my > y - halfsize
+		    && my < y + halfsize;
+	}
+
+	isDraggingTile() {
+		return this.draggedTile;
+	}
+
+	setDraggedTile(i, x, y) {
+		this.draggedTile = this.tiles[i];
+		
+		// move dragged tile to end, so that it will draw last
+		this.tiles.push(this.tiles.splice(i, 1)[0]);
+
+		var draggedTile = this.draggedTile;
+
+		draggedTile.setTarget(x, y);
+		draggedTile.startDragging();
+	}
+
+	unsetDraggedTile() {
+		this.draggedTile.stopDragging();
+		this.draggedTile = null;
+	}
+
+	beginDraggingTile(x, y) {
+		for (var i = 0; i < this.tiles.length; i++) {
+			if (this.hitTest(this.tiles[i], x, y)) {
+				this.setDraggedTile(i, x, y);
+				return true;
+			}
+		}
+		return false;
 	}
 
 	constructGrid() {
@@ -49,7 +99,7 @@ class Board {
 		for (var i = 0; i < alphabet.length; i++){
 			var c = alphabet.charAt(i);
 			for (var j = 0; j < counts[i]; j++) {
-				this.pile.push(new Tile(c));
+				this.pile.push(new Tile(c, this));
 			}
 		}
 	}
@@ -68,7 +118,7 @@ class Board {
 	setBoardForPlayerOne(numTiles) {
 		for (var i = 0; i < numTiles; i++) {
 			var keepGoing = true;
-			while (keepGoing){
+			while (keepGoing) {
 				var x = Math.floor(Math.random()*10 + this.height/2.0 - 10);
 				var y = Math.floor(Math.random()*10 + this.width/2.0  - 10);
 				if (this.grid[x][y] === null) {
@@ -77,33 +127,6 @@ class Board {
 					keepGoing = false;
 				}
 			}
-		}
-	}
-
-	move(tile, toCoord) {
-		var letter = tile.letter;
-
-		if (toCoord.x < 0 || toCoord.y < 0 || toCoord.x >= this.height || toCoord.y >= this.width){
-			return false;
-		}
-
-		if (letter.length === 1 && letter.match(/[a-z]/i)) {
-			if (toCoord.x === tile.x && toCoord.y === tile.y){
-				return true;
-			} else if (this.grid[toCoord.x][toCoord.y] === null){
-				this.grid[toCoord.x][toCoord.y] = letter;
-				this.grid[tile.x][tile.y] = null;
-				tile.x = toCoord.x;
-				tile.y = toCoord.y;
-				return true;
-			} else {
-				// var currentLetter = this.grid[toCoord.x][toCoord.y];
-				// this.grid[toCoord.x][toCoord.y] = letter;
-				// this.grid[fromCoord.x][fromCoord.y] = currentLetter;
-				return false;
-			}
-		} else {
-			throw "not a letter";
 		}
 	}
 
@@ -122,11 +145,8 @@ class Board {
 
 		if (letter.length === 1 && letter.match(/[a-z]/i)) { // validate letter
 			if (this.grid[x][y] === null){
-				this.grid[x][y] = letter;
-				tile.x = x;
-				tile.y = y;
-				tile.worldX = this.toWorld(x);
-				tile.worldY = this.toWorld(y);
+				tile.setGridCoord(x, y);
+				this.grid[x][y] = tile;
 				this.tiles.push(tile);
 			} else {
 				throw "not an empty space";
@@ -134,6 +154,8 @@ class Board {
 		} else {
 			throw "not a letter";
 		}
+
+		return true;
 	}
 
 	validate() {
@@ -172,7 +194,7 @@ class Board {
 			var word = '';
 			if (row[i]) {
 				while (row[i]) {
-					word += row[i];
+					word += row[i].letter;
 					i += 1;
 				}
 				if (word.length > 1) { words.push(word); };
@@ -230,6 +252,18 @@ class Board {
 	    }
 
 	    return count === 1;
+	}
+
+	update() {
+		for (var i = 0; i < this.tiles.length; i++) {
+			this.tiles[i].update();
+		}
+	}
+
+	draw(context) {
+		for (var i = 0; i < this.tiles.length; i++) {
+			this.tiles[i].draw(context);
+		}
 	}
 
 }
