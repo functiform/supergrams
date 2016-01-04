@@ -28,12 +28,12 @@ class Tile {
 		this.dragging = true;
 	}
 
-	snapToGridX(n) {
-		return clamp(Math.round(n), 0, this.board.width - 1);
+	snapToGridX(x) {
+		return clamp(Math.round(x), 0, this.board.width - 1);
 	}
 
-	snapToGridY(n) {
-		return clamp(Math.round(n), 0, this.board.height - 1);
+	snapToGridY(y) {
+		return clamp(Math.round(y), 0, this.board.height - 1);
 	}
 
 	stopDragging() {
@@ -59,9 +59,6 @@ class Tile {
 
 		var otherTile = this.board.tile(x, y);
 		if (otherTile) { otherTile.moveToClosest(); }
-
-		console.log(otherTile);
-		console.log(this);
 
 		this.setGridCoord(x, y); // should be empty at this point
 	}
@@ -105,13 +102,13 @@ class Tile {
 			for (var i = 0; i < a.length; i++) {
 				var z = a[i];
 
-				if (this.setGridCoord(x + z, y - layer)) return; 
-				if (this.setGridCoord(x + z, y + layer)) return; 
-
 				for (var j = -layer + 1; j < layer; j++) {
 					if (this.setGridCoord(x + z, y + j)) return; 
 					if (this.setGridCoord(x + j, y + z)) return; 
 				}
+
+				if (this.setGridCoord(x + z, y - layer)) return; 
+				if (this.setGridCoord(x + z, y + layer)) return; 
 			}
 
 			layer++;
@@ -124,14 +121,6 @@ class Tile {
 
 	worldToGridY(y) {
 		return (y - this.board.transY) / this.board.tileSize;
-	}
-
-	gridToWorld(x) {
-		return x * this.board.tileSize + this.board.transX;
-	}
-
-	gridToWorld(y) {
-		return y * this.board.tileSize + this.board.transY;
 	}
 
 	setTarget(x, y) {

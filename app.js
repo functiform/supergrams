@@ -5,7 +5,8 @@ class App {
 	constructor() {
 		var that = this;
 
-		var board = new Board(50, 50); this.board = board;
+		var board = new Board(50, 50); 
+		this.board = board;
 		board.setBoardForPlayerOne(15);
 
 		var canvas = document.getElementById("canvasOne"); this.canvas = canvas;
@@ -24,7 +25,7 @@ class App {
 		board.setTransX(lastCoords[0]);
 		board.setTransY(lastCoords[1]);
 
-		context.setTransform(1, 0, 0, 1, -300, -600);
+		context.setTransform(1, 0, 0, 1, lastCoords[0], lastCoords[1]);
 
 		var clamp = function(num, min, max) {
 			return (num < min) ? min : ((num > max) ? max : num);
@@ -77,12 +78,12 @@ class App {
 				board.draggedTile.setTarget(posX, posY);
 			};
 
-			if (!shifting) return;
+			if (shifting) {
+				var x = evt.offsetX;
+			    var y = evt.offsetY;
 
-			var x = evt.offsetX;
-		    var y = evt.offsetY;
-
-			context.setTransform(1, 0, 0, 1, x - startCoords[0], y - startCoords[1]);
+				context.setTransform(1, 0, 0, 1, x - startCoords[0], y - startCoords[1]);
+			}
 		}
 
 		this.canvas.addEventListener("mousedown", mousedown);
