@@ -54,7 +54,7 @@ class Board {
 
 	setDraggedTile(i, x, y) {
 		this.draggedTile = this.tiles[i];
-		
+
 		// move dragged tile to end, so that it will draw last
 		this.tiles.push(this.tiles.splice(i, 1)[0]);
 
@@ -137,7 +137,7 @@ class Board {
 	insert(tile, toCoord) {
 		var letter = tile.letter;
 		var x = toCoord.x,
-			y = toCoord.y;
+			  y = toCoord.y;
 
 		if (toCoord.x < 0 || toCoord.y < 0 || toCoord.x >= this.height || toCoord.y >= this.width){
 			return false;
@@ -156,6 +156,19 @@ class Board {
 		}
 
 		return true;
+	}
+
+	selectTiles(xMin, yMin, xMax, yMax) {
+		this.tiles.forEach(function(tile){
+			var coord = {x: this.tileSize * tile.currentX,
+									 y: this.tileSize * tile.currentY};
+
+			if (coord.x > xMin && coord.y > yMin && coord.x < xMax && coord.y < yMax) {
+				tile.selected = true;
+			} else {
+				tile.selected = false;
+			}
+		}.bind(this))
 	}
 
 	validate() {
@@ -204,10 +217,10 @@ class Board {
 	}
 
 	transpose(matrix) {
-		var x = matrix[0].map(function (_, col) { 
-			return matrix.map(function (row) { 
-				return row[col]; 
-			}); 
+		var x = matrix[0].map(function (_, col) {
+			return matrix.map(function (row) {
+				return row[col];
+			});
 		});
 		return x;
 	}
@@ -218,18 +231,18 @@ class Board {
 		});
 
 		if (tgrid==null || tgrid.length==0 || tgrid[0].length==0) return 0;
-		
+
 		function merge(i, j){
 		    //validity checking
 		    if(i<0 || j<0 || i>tgrid.length-1 || j>tgrid[0].length-1)
 		        return;
-		 
+
 		    //if current cell is water or visited
 		    if(tgrid[i][j] === null) return;
-		 
+
 		    //set visited cell to null
 		    tgrid[i][j] = null;
-		 
+
 		    //merge all adjacent land
 		    merge(i-1, j);
 		    merge(i+1, j);
@@ -238,7 +251,7 @@ class Board {
 		}
 
 		var count = 0;
-	 
+
 	    for (var i=0; i<tgrid.length; i++) {
 	        for (var j=0; j<tgrid[0].length; j++) {
 	            if(tgrid[i][j] !== null){
