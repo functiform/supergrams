@@ -18,6 +18,7 @@ class Board {
 
 		this.tiles = []; // hold tiles
 		this.draggedTiles = [];
+		this.selectedTiles = [];
 
 		this.constructGrid(); 
 		this.constructPile();
@@ -75,7 +76,15 @@ class Board {
 		return this.draggedTiles.length > 0;
 	}
 
-	setDraggedTile(tile, x, y, setAdjacent) {
+	dragSelectedTiles() {
+		this.selectedTiles.forEach( function(tile) {
+			this.draggedTiles.push(tile);
+		}.bind(this));
+		this.selectedTiles = [];
+	}
+
+	setDraggedTile(tile, setAdjacent) {
+
 		// move dragged tile to end, so that it will draw last
 		// this.tiles.push(this.tiles.splice(i, 1)[0]);
 
@@ -121,7 +130,7 @@ class Board {
 	beginDraggingTile(x, y, selectAdjacent) {
 		for (var i = 0; i < this.tiles.length; i++) {
 			if (this.hitTest(this.tiles[i], x, y)) {
-				this.setDraggedTile(this.tiles[i], x, y, selectAdjacent);
+				this.setDraggedTile(this.tiles[i], selectAdjacent);
 				return true;
 			}
 		}
@@ -186,7 +195,7 @@ class Board {
 	insert(tile, toCoord) {
 		var letter = tile.letter;
 		var x = toCoord.x,
-			y = toCoord.y;
+		  y = toCoord.y;
 
 		if (toCoord.x < 0 || toCoord.y < 0 || toCoord.x >= this.height || toCoord.y >= this.width){
 			return false;
@@ -205,6 +214,24 @@ class Board {
 		}
 
 		return true;
+	}
+
+	selectTiles(xMin, yMin, xMax, yMax) {
+		this.tiles.forEach(function(tile){
+			var coord = {x: this.tileSize * tile.currentX,
+						 y: this.tileSize * tile.currentY};
+
+			if (coord.x > xMin && coord.y > yMin && coord.x < xMax && coord.y < yMax) {
+				tile.state = TileState.SELECTING;
+				this.selectedTiles.push(tile);
+			} else {
+				tile.state = TileState.REGULAR;
+				var index = this.selectedTiles.indexOf(tile);
+				if (index > -1) {
+				    this.selectedTiles.splice(index, 1);
+				}
+			}
+		}.bind(this))
 	}
 
 	validate() {
@@ -253,10 +280,10 @@ class Board {
 	}
 
 	transpose(matrix) {
-		var x = matrix[0].map(function (_, col) { 
-			return matrix.map(function (row) { 
-				return row[col]; 
-			}); 
+		var x = matrix[0].map(function (_, col) {
+			return matrix.map(function (row) {
+				return row[col];
+			});
 		});
 		return x;
 	}
@@ -267,18 +294,18 @@ class Board {
 		});
 
 		if (tgrid==null || tgrid.length==0 || tgrid[0].length==0) return 0;
-		
+
 		function merge(i, j){
 		    //validity checking
 		    if(i<0 || j<0 || i>tgrid.length-1 || j>tgrid[0].length-1)
 		        return;
-		 
+
 		    //if current cell is water or visited
 		    if(tgrid[i][j] === null) return;
-		 
+
 		    //set visited cell to null
 		    tgrid[i][j] = null;
-		 
+
 		    //merge all adjacent land
 		    merge(i-1, j);
 		    merge(i+1, j);
@@ -287,7 +314,7 @@ class Board {
 		}
 
 		var count = 0;
-	 
+
 	    for (var i=0; i<tgrid.length; i++) {
 	        for (var j=0; j<tgrid[0].length; j++) {
 	            if(tgrid[i][j] !== null){

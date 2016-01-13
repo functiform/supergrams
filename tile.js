@@ -58,14 +58,14 @@ class Tile {
 	stopDragging() {
 		this.dragging = false;
 		var x = this.snapToGridX(this.targetX),
-			y = this.snapToGridY(this.targetY);
+		  	y = this.snapToGridY(this.targetY);
 		this.move(x, y);
 		this.board.unselectAllTiles();
 	}
 
 	canvasCoord() {
 		return { x: this.board.tileSize * this.currentX + this.board.transX,
-				 y: this.board.tileSize * this.currentY + this.board.transY };
+				     y: this.board.tileSize * this.currentY + this.board.transY };
 	}
 
 	move(x, y) {
@@ -117,18 +117,19 @@ class Tile {
 		    y = this.gridY,
 		    layer = 1;
 
+
 		while (true) {
 			var a = [-layer, layer];
 			for (var i = 0; i < a.length; i++) {
 				var z = a[i];
 
 				for (var j = -layer + 1; j < layer; j++) {
-					if (this.setGridCoord(x + z, y + j)) return; 
-					if (this.setGridCoord(x + j, y + z)) return; 
+					if (this.setGridCoord(x + z, y + j)) return;
+					if (this.setGridCoord(x + j, y + z)) return;
 				}
 
-				if (this.setGridCoord(x + z, y - layer)) return; 
-				if (this.setGridCoord(x + z, y + layer)) return; 
+				if (this.setGridCoord(x + z, y - layer)) return;
+				if (this.setGridCoord(x + z, y + layer)) return;
 			}
 
 			layer++;
@@ -239,17 +240,19 @@ class Tile {
 	}
 
 	draw(context) {
-		    var x = this.board.tileSize * this.currentX,
-		    y = this.board.tileSize * this.currentY,
-		    rad = this.board.tileSize / 2;
+	    var x = this.board.tileSize * this.currentX,
+	    y = this.board.tileSize * this.currentY,
+	    rad = this.board.tileSize / 2;
 
 		context.fillStyle = this.fillColor();
 		context.lineWidth = this.strokeThickness();
 		context.strokeStyle = this.strokeColor();
+
 		context.fillRect(x-rad, y-rad, rad * 2, rad * 2);
 		context.strokeRect(x-rad, y-rad, rad * 2, rad * 2);
-		
+
 		context.fillStyle = "#000000";
+
 		context.font = "40px Helvetica";
 		context.fillText(this.letter, x - rad / 2, y + rad / 2);
 	}
