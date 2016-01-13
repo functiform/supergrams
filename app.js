@@ -35,8 +35,9 @@ class App {
 			var bRect = canvas.getBoundingClientRect(),
 				mouseX = (evt.clientX - bRect.left) * (canvas.width / bRect.width),
 				mouseY = (evt.clientY - bRect.top) * (canvas.height / bRect.height);
-
-			if (!board.beginDraggingTile(mouseX, mouseY)) {
+			if (board.beginDraggingTile(mouseX, mouseY, evt.shiftKey)) { // TODO: make a check for existence here first
+				board.setDragVectorStart(mouseX, mouseY);
+			} else {
 				shifting = true;
 				startCoords = [
 					clamp(evt.offsetX - lastCoords[0], 0, 1500),
@@ -55,7 +56,9 @@ class App {
 				board.setTransY(lastCoords[1]);
 				shifting = false;
 			} else {
-				board.unsetDraggedTile();
+				board.unsetDraggedTiles();
+				board.setDragVectorStart(0, 0);
+				board.setDragVectorEnd(0, 0);
 			}
 		}
 		
@@ -75,13 +78,13 @@ class App {
 				var posY = mouseY;
 				posY = clamp(posY, minY, maxY);
 				
-				board.draggedTile.setTarget(posX, posY);
+				// board.draggedTile.setTarget(posX, posY);
+				
+				board.setDragVectorEnd(posX, posY);
 			};
-
 			if (shifting) {
 				var x = evt.offsetX;
 			    var y = evt.offsetY;
-
 				context.setTransform(1, 0, 0, 1, x - startCoords[0], y - startCoords[1]);
 			}
 		}

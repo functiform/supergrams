@@ -17,11 +17,14 @@ class Board {
 		this.easeAmount = 0.40;
 
 		this.tiles = []; // hold tiles
-		this.draggedTile = null;
+		this.draggedTiles = [];
 
-		this.constructGrid(); // hold letters to evaluate
+		this.constructGrid(); 
 		this.constructPile();
 		this.shufflePile();
+
+		this.setDragVectorStart(0, 0);
+		this.setDragVectorEnd(0, 0);
 	}
 
 	setTransX(x) {
@@ -30,6 +33,26 @@ class Board {
 
 	setTransY(y) {
 		this.transY = y;
+	}
+
+	setDragVectorStart(x, y) {
+		this.startVector = { 
+			x: x,
+			y: y 
+		};
+	}
+
+	unselectAllTiles() {
+		for (var i = 0; i < this.tiles.length; i++) {
+			this.tiles[i].state = TileState.REGULAR;
+		}
+	}
+
+	setDragVectorEnd(x, y) {
+		this.dragVector = {
+			x: x - this.startVector.x,
+			y: y - this.startVector.y
+		};
 	}
 
 	tile(x, y) {
@@ -49,30 +72,56 @@ class Board {
 	}
 
 	isDraggingTile() {
-		return this.draggedTile;
+		return this.draggedTiles.length > 0;
 	}
 
-	setDraggedTile(i, x, y) {
-		this.draggedTile = this.tiles[i];
-		
+	setDraggedTile(tile, x, y, setAdjacent) {
 		// move dragged tile to end, so that it will draw last
-		this.tiles.push(this.tiles.splice(i, 1)[0]);
+		// this.tiles.push(this.tiles.splice(i, 1)[0]);
 
-		var draggedTile = this.draggedTile;
+		this.draggedTiles.push(tile);
+		tile.startDragging();
 
-		draggedTile.setTarget(x, y);
-		draggedTile.startDragging();
+		tile.state = TileState.SELECTING;
+		
+		if (setAdjacent) {
+			var x = tile.gridX,
+				y = tile.gridY;
+			var a = [[-1, 0], [1, 0], [0, -1], [0, 1]];
+			for (var n = 0; n < a.length; n++) {
+				var m = a[n],
+					i = m[0],
+					j = m[1],
+					k = x + i,
+					z = y + j;
+				var t = this.tile(k, z);
+				if (t && t.state !== TileState.SELECTING) {
+					this.setDraggedTile(t, k, z, setAdjacent);
+				}
+			}
+		}
 	}
 
-	unsetDraggedTile() {
-		this.draggedTile.stopDragging();
-		this.draggedTile = null;
+	addDraggedTiles(tilesToDrag, x, y) {
+		for (var i = 0; i < tilesToDrag.length; i++) {
+			var draggedTile = tilesToDrag[i];
+			this.draggedTiles.push(draggedTile);
+			draggedTile.startDragging();
+		}
 	}
 
-	beginDraggingTile(x, y) {
+	unsetDraggedTiles() {
+		for (var i = 0; i < this.draggedTiles.length; i++) {
+			var draggedTile = this.draggedTiles[i];
+			draggedTile.stopDragging();
+		}
+		this.draggedTiles = [];
+	}
+
+	beginDraggingTile(x, y, selectAdjacent) {
 		for (var i = 0; i < this.tiles.length; i++) {
 			if (this.hitTest(this.tiles[i], x, y)) {
-				this.setDraggedTile(i, x, y);
+				this.setDraggedTile(this.tiles[i], x, y, selectAdjacent);
 				return true;
 			}
 		}
@@ -86,7 +135,7 @@ class Board {
 		}
 		this.grid = [];
 		for (var i = 0; i < this.height; i++){
-			this.grid.push(row.slice()); // copy array `row` by value
+			this.grid.push(row.slice()); // copy array row by value
 		}
 	}
 

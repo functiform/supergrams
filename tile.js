@@ -4,6 +4,23 @@ function clamp(num, min, max) {
 	return (num < min) ? min : ((num > max) ? max : num);
 }
 
+var Color = {
+	RED: '#FF0000',
+	GREEN: '#00FF00',
+	BLUE: '#0000FF',
+	BLACK: '#000000',
+	WHITE: '#FFFFFF'
+};
+
+var TileState = {
+	REGULAR: 'regular',
+	DRAGGING: 'dragging',
+	SELECTING: 'selecting',
+	HOVERING: 'hovering',
+	REPLACING: 'replacing',
+	NEW: 'new'
+};
+
 class Tile {
 
 	constructor(letter, board) {
@@ -22,6 +39,8 @@ class Tile {
 		this.dragging = false;
 
 		this.setEaseAmount(0.3);
+
+		this.state = TileState.REGULAR;
 	}
 
 	startDragging() {
@@ -41,6 +60,7 @@ class Tile {
 		var x = this.snapToGridX(this.targetX),
 			y = this.snapToGridY(this.targetY);
 		this.move(x, y);
+		this.board.unselectAllTiles();
 	}
 
 	canvasCoord() {
@@ -94,8 +114,8 @@ class Tile {
 
 	moveToClosest() {
 		var x = this.gridX,
-			y = this.gridY,
-			layer = 1;
+		    y = this.gridY,
+		    layer = 1;
 
 		while (true) {
 			var a = [-layer, layer];
@@ -123,26 +143,109 @@ class Tile {
 		return (y - this.board.transY) / this.board.tileSize;
 	}
 
+	worldToGridNoOffsetX(x) {
+		return x / this.board.tileSize;
+	}
+
+	worldToGridNoOffsetY(y) {
+		return y / this.board.tileSize;
+	}
+
 	setTarget(x, y) {
 		this.targetX = this.worldToGridX(x);
 		this.targetY = this.worldToGridY(y);
 	}
 
-	setEaseAmount(amt){
+	setEaseAmount(amt) {
 		this.easeAmount = amt;
 	}
 
-	removeTarget() {
-		this.targetX = -1.00;
-		this.targetY = -1.00;
+	// removeTarget() {
+	// 	this.targetX = -1.00;
+	// 	this.targetY = -1.00;
+	// }
+
+	fillColor() {
+		switch(this.state) {
+		    case TileState.REGULAR:
+		        return Color.WHITE;
+		    case TileState.DRAGGING:
+		        return Color.WHITE;
+		    case TileState.SELECTING:
+		        return Color.GREEN;
+		    case TileState.HOVERING:
+		        return Color.WHITE;
+		    case TileState.REPLACING:
+		        return Color.BLACK;
+		    case TileState.NEW:
+		        return Color.RED;
+		    default:
+		        throw 'Invalid enum value for TileState'
+		};
+	}
+
+	strokeColor() {
+		switch(this.state) {
+		    case TileState.REGULAR:
+		        return Color.BLACK;
+		    case TileState.DRAGGING:
+		        return Color.RED;
+		    case TileState.SELECTING:
+		        return Color.BLUE;
+		    case TileState.HOVERING:
+		        return Color.WHITE;
+		    case TileState.REPLACING:
+		        return Color.BLACK;
+		    case TileState.NEW:
+		        return Color.RED;
+		    default:
+		        throw 'Invalid enum value for TileState'
+		};
+	}
+
+	strokeThickness() {
+		switch(this.state) {
+		    case TileState.REGULAR:
+		        return 0;
+		    case TileState.DRAGGING:
+		        return 2;
+		    case TileState.SELECTING:
+		        return 1;
+		    case TileState.HOVERING:
+		        return 1;
+		    case TileState.REPLACING:
+		        return 1;
+		    case TileState.NEW:
+		        return 1;
+		    default:
+		        throw 'Invalid enum value for TileState'
+		};
+	}
+
+	selectAdjacentTiles() {
+		this.state = TileState.SELECTING;
+		var x = this.gridX,
+			y = this.gridY;
+		var a = [[-1, 0], [1, 0], [0, -1], [0, 1]];
+		for (var n = 0; n < a.length; n++) {
+			var m = a[n],
+				i = m[0],
+				j = m[1];
+			var tile = this.board.tile(x + i, y + j);
+			if (tile && tile.state !== TileState.SELECTING) {
+				tile.selectAdjacentTiles();
+			}
+		}
 	}
 
 	draw(context) {
-		var x = this.board.tileSize * this.currentX,
-			y = this.board.tileSize * this.currentY,
-			rad = this.board.tileSize / 2;
+		    var x = this.board.tileSize * this.currentX,
+		    y = this.board.tileSize * this.currentY,
+		    rad = this.board.tileSize / 2;
 
-		context.fillStyle = "#FFFFFF";
+		context.fillStyle = this.fillColor();
+		context.lineWidth = this.strokeThickness();
+		context.strokeStyle = this.strokeColor();
 		context.fillRect(x-rad, y-rad, rad * 2, rad * 2);
 		context.strokeRect(x-rad, y-rad, rad * 2, rad * 2);
 		
@@ -152,6 +255,10 @@ class Tile {
 	}
 
 	update() {
+		if (this.state === TileState.SELECTING) {
+			this.targetX = this.gridX + this.worldToGridNoOffsetX(this.board.dragVector.x);
+			this.targetY = this.gridY + this.worldToGridNoOffsetY(this.board.dragVector.y);
+		}
 		if (this.inMotion()) {
 			this.currentX += this.easeAmount * (this.targetX - this.currentX);
 			this.currentY += this.easeAmount * (this.targetY - this.currentY);
