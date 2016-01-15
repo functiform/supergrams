@@ -22,10 +22,10 @@ class App {
 		});
 
 		var shifting = false,
-			marqueeing = false,
-			    isDown = false,
-			lastCoords = [-300, -600],
-		 startCoords = [0, 0];
+		    marqueeing = false,
+		    isDown = false,
+		    lastCoords = [-300, -600],
+		    startCoords = [0, 0];
 
 		board.setTransX(lastCoords[0]);
 		board.setTransY(lastCoords[1]);
@@ -44,7 +44,6 @@ class App {
 				board.dragSelectedTiles();
 				board.setDragVectorStart(mouseX, mouseY);
 			} else {
-
 				if (evt.shiftKey) {
 					marqueeing = true;
 					startCoords = [
@@ -70,9 +69,9 @@ class App {
 			if (shifting) {
 				lastCoords = [
 					clamp(evt.offsetX - startCoords[0], -1500, 0),
-		      clamp(evt.offsetY - startCoords[1], -1500, 0)
-		    ];
-		    board.setTransX(lastCoords[0]);
+		    		clamp(evt.offsetY - startCoords[1], -1500, 0)
+		    	];
+		    	board.setTransX(lastCoords[0]);
 				board.setTransY(lastCoords[1]);
 				shifting = false;
 			} else if (marqueeing) {
@@ -100,9 +99,7 @@ class App {
 				posX = clamp(posX, minX, maxX);
 				var posY = mouseY;
 				posY = clamp(posY, minY, maxY);
-				
-				// board.draggedTile.setTarget(posX, posY);
-				
+								
 				board.setDragVectorEnd(posX, posY);
 			};
 

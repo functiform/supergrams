@@ -59,43 +59,60 @@ class Tile {
 		this.dragging = false;
 		var x = this.snapToGridX(this.targetX),
 		  	y = this.snapToGridY(this.targetY);
-		this.move(x, y);
-		this.board.unselectAllTiles();
+		if (this.move(x, y)) {
+			this.state = TileState.REGULAR;
+		}
 	}
 
 	canvasCoord() {
 		return { x: this.board.tileSize * this.currentX + this.board.transX,
-				     y: this.board.tileSize * this.currentY + this.board.transY };
+		         y: this.board.tileSize * this.currentY + this.board.transY };
 	}
 
 	move(x, y) {
+		// console.log('(' + this.gridX + ',' + this.gridY + ')');
+		// console.log('(' + x + ',' + y + ')');
+
 		var isSameTile = x === this.gridX && y === this.gridY;
 
 		if (isSameTile) {
 			this.targetX = x;
 			this.targetY = y;
-			return;
+			return true;
 		}
 
 		var otherTile = this.board.tile(x, y);
-		if (otherTile) { otherTile.moveToClosest(); }
+		if (otherTile) {
+			if (otherTile.state !== TileState.SELECTING) {
+				otherTile.moveToClosest(); 
+			} else {
+				return false;
+			}
+		}
 
-		this.setGridCoord(x, y); // should be empty at this point
+		this.setGridCoord(x, y); // should be empty at this point OR tile at that location is selected.
+		return true;
 	}
 
 	setGridCoord(x, y) {
-		if (this.board.tile(x, y)) return false;
+		var otherTile = this.board.tile(x, y);
+
+		if (otherTile) {
+			return false;
+		}
 
 		if (this.gridX !== -1 && this.gridY !== -1) {
 			this.board.grid[this.gridX][this.gridY] = null;  // TODO: need to delegate grid changes to Board class only
 		}
+
+		// console.log(this.letter + ' ' + y + '->' + this.gridY);
 
 		this.gridX = x;
 		this.gridY = y;
 		this.targetX = x;
 		this.targetY = y;
 
-		this.board.grid[this.gridX][this.gridY] = this; // TODO: need to delegate grid changes to Board class only
+		this.board.grid[x][y] = this; // TODO: need to delegate grid changes to Board class only
 
 		return true;
 	}
@@ -116,7 +133,6 @@ class Tile {
 		var x = this.gridX,
 		    y = this.gridY,
 		    layer = 1;
-
 
 		while (true) {
 			var a = [-layer, layer];
@@ -160,11 +176,6 @@ class Tile {
 	setEaseAmount(amt) {
 		this.easeAmount = amt;
 	}
-
-	// removeTarget() {
-	// 	this.targetX = -1.00;
-	// 	this.targetY = -1.00;
-	// }
 
 	fillColor() {
 		switch(this.state) {
@@ -223,26 +234,10 @@ class Tile {
 		};
 	}
 
-	selectAdjacentTiles() {
-		this.state = TileState.SELECTING;
-		var x = this.gridX,
-			y = this.gridY;
-		var a = [[-1, 0], [1, 0], [0, -1], [0, 1]];
-		for (var n = 0; n < a.length; n++) {
-			var m = a[n],
-				i = m[0],
-				j = m[1];
-			var tile = this.board.tile(x + i, y + j);
-			if (tile && tile.state !== TileState.SELECTING) {
-				tile.selectAdjacentTiles();
-			}
-		}
-	}
-
 	draw(context) {
 	    var x = this.board.tileSize * this.currentX,
-	    y = this.board.tileSize * this.currentY,
-	    rad = this.board.tileSize / 2;
+	        y = this.board.tileSize * this.currentY,
+	        rad = this.board.tileSize / 2;
 
 		context.fillStyle = this.fillColor();
 		context.lineWidth = this.strokeThickness();
