@@ -18,17 +18,15 @@ class Marquee {
   }
 
   updateSize(offsetX, offsetY) {
-    this.width   = offsetX - this.x;
-    this.height  = offsetY - this.y;
+    this.width  = offsetX - this.x;
+    this.height = offsetY - this.y;
   }
 
   draw(context) {
     if (this.shown) {
-      context.beginPath();
       context.lineWidth = "3";
       context.strokeStyle = "red";
       context.strokeRect(this.x, this.y, this.width, this.height);
-      context.stroke();
     }
   }
 }

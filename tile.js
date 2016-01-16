@@ -1,15 +1,14 @@
 'use strict';
 
-function clamp(num, min, max) {
-	return (num < min) ? min : ((num > max) ? max : num);
-}
-
 var Color = {
 	RED: '#FF0000',
 	GREEN: '#00FF00',
 	BLUE: '#0000FF',
 	BLACK: '#000000',
-	WHITE: '#FFFFFF'
+	WHITE: '#FFFFFF',
+	TAN: '#cccccc',
+	LIGHTGRAY: '#333333',
+	YELLOW: "ffff99"
 };
 
 var TileState = {
@@ -22,7 +21,6 @@ var TileState = {
 };
 
 class Tile {
-
 	constructor(letter, board) {
 		this.letter = letter;
 		this.board = board;
@@ -48,11 +46,11 @@ class Tile {
 	}
 
 	snapToGridX(x) {
-		return clamp(Math.round(x), 0, this.board.width - 1);
+		return Utils.clamp(Math.round(x), 0, this.board.width - 1);
 	}
 
 	snapToGridY(y) {
-		return clamp(Math.round(y), 0, this.board.height - 1);
+		return Utils.clamp(Math.round(y), 0, this.board.height - 1);
 	}
 
 	stopDragging() {
@@ -70,9 +68,6 @@ class Tile {
 	}
 
 	move(x, y) {
-		// console.log('(' + this.gridX + ',' + this.gridY + ')');
-		// console.log('(' + x + ',' + y + ')');
-
 		var isSameTile = x === this.gridX && y === this.gridY;
 
 		if (isSameTile) {
@@ -90,7 +85,7 @@ class Tile {
 			}
 		}
 
-		this.setGridCoord(x, y); // should be empty at this point OR tile at that location is selected.
+		this.setGridCoord(x, y);
 		return true;
 	}
 
@@ -102,17 +97,15 @@ class Tile {
 		}
 
 		if (this.gridX !== -1 && this.gridY !== -1) {
-			this.board.grid[this.gridX][this.gridY] = null;  // TODO: need to delegate grid changes to Board class only
+			this.board.setGrid(this.gridX, this.gridY, null);
 		}
-
-		// console.log(this.letter + ' ' + y + '->' + this.gridY);
 
 		this.gridX = x;
 		this.gridY = y;
 		this.targetX = x;
 		this.targetY = y;
 
-		this.board.grid[x][y] = this; // TODO: need to delegate grid changes to Board class only
+		this.board.setGrid(x, y, this);
 
 		return true;
 	}
@@ -136,6 +129,7 @@ class Tile {
 
 		while (true) {
 			var a = [-layer, layer];
+
 			for (var i = 0; i < a.length; i++) {
 				var z = a[i];
 
@@ -180,11 +174,11 @@ class Tile {
 	fillColor() {
 		switch(this.state) {
 		    case TileState.REGULAR:
-		        return Color.WHITE;
+		        return Color.TAN;
 		    case TileState.DRAGGING:
 		        return Color.WHITE;
 		    case TileState.SELECTING:
-		        return Color.GREEN;
+		        return Color.WHITE;
 		    case TileState.HOVERING:
 		        return Color.WHITE;
 		    case TileState.REPLACING:
@@ -199,11 +193,11 @@ class Tile {
 	strokeColor() {
 		switch(this.state) {
 		    case TileState.REGULAR:
-		        return Color.BLACK;
+		        return Color.LIGHTGRAY;
 		    case TileState.DRAGGING:
 		        return Color.RED;
 		    case TileState.SELECTING:
-		        return Color.BLUE;
+		        return Color.BLACK;
 		    case TileState.HOVERING:
 		        return Color.WHITE;
 		    case TileState.REPLACING:
@@ -218,17 +212,17 @@ class Tile {
 	strokeThickness() {
 		switch(this.state) {
 		    case TileState.REGULAR:
-		        return 0;
+		        return "0";
 		    case TileState.DRAGGING:
-		        return 2;
+		        return "2";
 		    case TileState.SELECTING:
-		        return 1;
+		        return "0";
 		    case TileState.HOVERING:
-		        return 1;
+		        return "1";
 		    case TileState.REPLACING:
-		        return 1;
+		        return "1";
 		    case TileState.NEW:
-		        return 1;
+		        return "1";
 		    default:
 		        throw 'Invalid enum value for TileState'
 		};
@@ -239,17 +233,42 @@ class Tile {
 	        y = this.board.tileSize * this.currentY,
 	        rad = this.board.tileSize / 2;
 
+	    function drawRoundedRectangle(x, y, size, radius) {
+	    	context.beginPath();
+	    	context.moveTo(x + radius, y);
+	    	context.lineTo(x + size - radius, y);
+	    	context.quadraticCurveTo(x + size, y, x + size, y + radius);
+	    	context.lineTo(x + size, y + size - radius);
+	    	context.quadraticCurveTo(x + size, y + size, x + size - radius, y + size);
+	    	context.lineTo(x + radius, y + size);
+	    	context.quadraticCurveTo(x, y + size, x, y + size - radius);
+	    	context.lineTo(x, y + radius);
+	    	context.quadraticCurveTo(x, y, x + radius, y);
+	    	context.closePath();
+	    	context.fill();
+	    };
+
+	    context.beginPath();
+
 		context.fillStyle = this.fillColor();
-		context.lineWidth = this.strokeThickness();
 		context.strokeStyle = this.strokeColor();
+		if (this.state == TileState.SELECTING) {
+			context.shadowColor = Color.YELLOW;
+			context.shadowOffsetX = 0;
+			context.shadowOffsetY = 0;
+			context.shadowBlur = 8;
+		}
+		drawRoundedRectangle(x-rad + 1, y-rad + 1, this.board.tileSize - 2, 5);
+		context.shadowBlur = 0;
 
-		context.fillRect(x-rad, y-rad, rad * 2, rad * 2);
-		context.strokeRect(x-rad, y-rad, rad * 2, rad * 2);
+		if (this.strokeThickness() !== "0") {
+			context.lineWidth = this.strokeThickness();
+		}
 
-		context.fillStyle = "#000000";
-
-		context.font = "40px Helvetica";
-		context.fillText(this.letter, x - rad / 2, y + rad / 2);
+		context.fillStyle =  this.strokeColor();
+		context.font = "40px aw-conqueror-carved-one";
+		context.textAlign = "center";
+		context.fillText(this.letter, x, y + rad / 2);
 	}
 
 	update() {
@@ -263,3 +282,4 @@ class Tile {
 		}
 	}
 }
+

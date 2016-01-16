@@ -32,10 +32,6 @@ class App {
 
 		context.setTransform(1, 0, 0, 1, lastCoords[0], lastCoords[1]);
 
-		var clamp = function(num, min, max) {
-			return (num < min) ? min : ((num > max) ? max : num);
-		};
-
 		function mousedown(evt) {
 			var bRect = canvas.getBoundingClientRect(),
 				mouseX = (evt.clientX - bRect.left) * (canvas.width / bRect.width),
@@ -47,8 +43,8 @@ class App {
 				if (evt.shiftKey) {
 					marqueeing = true;
 					startCoords = [
-						clamp(evt.offsetX - lastCoords[0], 0, 1500),
-						clamp(evt.offsetY - lastCoords[1], 0, 1500)
+						Utils.clamp(evt.offsetX - lastCoords[0], 0, 1500),
+						Utils.clamp(evt.offsetY - lastCoords[1], 0, 1500)
 					];
 					that.marquee.show(startCoords[0], startCoords[1]);
 					return;
@@ -57,8 +53,8 @@ class App {
 				if (!board.beginDraggingTile(mouseX, mouseY)) {
 					shifting = true;
 					startCoords = [
-						clamp(evt.offsetX - lastCoords[0], 0, 1500),
-			        	clamp(evt.offsetY - lastCoords[1], 0, 1500)
+						Utils.clamp(evt.offsetX - lastCoords[0], 0, 1500),
+			        	Utils.clamp(evt.offsetY - lastCoords[1], 0, 1500)
 					];
 				}
 
@@ -68,8 +64,8 @@ class App {
 		function mouseup(evt) {
 			if (shifting) {
 				lastCoords = [
-					clamp(evt.offsetX - startCoords[0], -1500, 0),
-		    		clamp(evt.offsetY - startCoords[1], -1500, 0)
+					Utils.clamp(evt.offsetX - startCoords[0], -1500, 0),
+		    		Utils.clamp(evt.offsetY - startCoords[1], -1500, 0)
 		    	];
 		    	board.setTransX(lastCoords[0]);
 				board.setTransY(lastCoords[1]);
@@ -96,9 +92,9 @@ class App {
 					mouseY = (evt.clientY - bRect.top) * (canvas.height/bRect.height);
 
 				var posX = mouseX;
-				posX = clamp(posX, minX, maxX);
+				posX = Utils.clamp(posX, minX, maxX);
 				var posY = mouseY;
-				posY = clamp(posY, minY, maxY);
+				posY = Utils.clamp(posY, minY, maxY);
 								
 				board.setDragVectorEnd(posX, posY);
 			};
@@ -144,7 +140,7 @@ class App {
 	}
 
 	draw() {
-		var bgColor = "#000000";
+		var bgColor = "#001a00";
 		this.context.fillStyle = bgColor;
 		this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
 		this.board.draw(this.context);

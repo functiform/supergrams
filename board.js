@@ -49,6 +49,14 @@ class Board {
 		);
 	}
 
+	getUnselectedTiles() {
+		return this.tiles.filter(
+			function(tile) {
+				return tile.state !== TileState.SELECTING;
+			}
+		);
+	}
+
 	getDraggedTiles() {
 		return this.tiles.filter(
 			function(tile) {
@@ -72,6 +80,10 @@ class Board {
 
 	tile(x, y) {
 		return this.grid[x][y];
+	}
+
+	setGrid(x, y, val) {
+		this.grid[x][y] = val;
 	}
 
 	hitTest(tile, mx, my) {
@@ -360,8 +372,14 @@ class Board {
 	}
 
 	draw(context) {
-		for (var i = 0; i < this.tiles.length; i++) {
-			this.tiles[i].draw(context);
+		var unselectedTiles = this.getUnselectedTiles();
+		for (var i = 0; i < unselectedTiles.length; i++) {
+			unselectedTiles[i].draw(context);
+		}
+
+		var selectedTiles = this.getSelectedTiles();
+		for (var i = 0; i < selectedTiles.length; i++) {
+			selectedTiles[i].draw(context);
 		}
 	}
 
