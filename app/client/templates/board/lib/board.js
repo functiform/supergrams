@@ -1,9 +1,7 @@
-'use strict';
-
-class Board {
+Board = class Board {
 
 	constructor(width, height) {
-		this.dictionary = wordsDictionary;
+		this.dictionary = {}; // used to receive words dictionary, need to solve problem of loading client dictionary
 
 		this.width  = height;
 		this.height = width;

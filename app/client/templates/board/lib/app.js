@@ -1,6 +1,4 @@
-'use strict';
-
-class App {
+App = class App {
 
 	constructor() {
 		var that = this;
@@ -148,4 +146,3 @@ class App {
 	}
 
 }
-

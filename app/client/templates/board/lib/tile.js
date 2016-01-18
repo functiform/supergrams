@@ -1,26 +1,4 @@
-'use strict';
-
-var Color = {
-	RED: '#FF0000',
-	GREEN: '#00FF00',
-	BLUE: '#0000FF',
-	BLACK: '#000000',
-	WHITE: '#FFFFFF',
-	TAN: '#cccccc',
-	LIGHTGRAY: '#333333',
-	YELLOW: "ffff99"
-};
-
-var TileState = {
-	REGULAR: 'regular',
-	DRAGGING: 'dragging',
-	SELECTING: 'selecting',
-	HOVERING: 'hovering',
-	REPLACING: 'replacing',
-	NEW: 'new'
-};
-
-class Tile {
+Tile = class Tile {
 	constructor(letter, board) {
 		this.letter = letter;
 		this.board = board;
@@ -282,4 +260,3 @@ class Tile {
 		}
 	}
 }
-
