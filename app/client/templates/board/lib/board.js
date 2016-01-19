@@ -16,7 +16,7 @@ Board = class Board {
 
 		this.tiles = []; // hold tiles
 
-		this.constructGrid(); 
+		this.constructGrid();
 		this.constructPile();
 		this.shufflePile();
 
@@ -33,9 +33,9 @@ Board = class Board {
 	}
 
 	setDragVectorStart(x, y) {
-		this.startVector = { 
+		this.startVector = {
 			x: x,
-			y: y 
+			y: y
 		};
 	}
 
@@ -114,7 +114,7 @@ Board = class Board {
 		tile.startDragging();
 
 		tile.state = TileState.SELECTING;
-		
+
 		if (setAdjacent) {
 			var x = tile.gridX,
 				y = tile.gridY;
@@ -259,7 +259,7 @@ Board = class Board {
 			var coord = {x: this.tileSize * tile.currentX,
 						 y: this.tileSize * tile.currentY};
 
-			if (coord.x > xMin && coord.y > yMin && coord.x < xMax && coord.y < yMax) {
+			if (coord.x + this.tileSize / 2 > xMin && coord.y + this.tileSize / 2 > yMin && coord.x - this.tileSize / 2 < xMax && coord.y - this.tileSize / 2 < yMax) {
 				tile.state = TileState.SELECTING;
 			} else {
 				tile.state = TileState.REGULAR;
