@@ -267,6 +267,12 @@ Board = class Board {
 		}.bind(this))
 	}
 
+	deselectTiles() {
+		this.tiles.forEach(function(tile){
+			tile.state = TileState.REGULAR;
+		});
+	}
+
 	validate() {
 		if (!this.isOneIsland()){
 			return false;

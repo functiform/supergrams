@@ -54,9 +54,11 @@ App = class App {
 						Utils.clamp(evt.offsetX - lastCoords[0], 0, 1500),
 			        	Utils.clamp(evt.offsetY - lastCoords[1], 0, 1500)
 					];
+					board.deselectTiles();
 				}
 
 			}
+
 		}
 
 		function mouseup(evt) {
@@ -93,7 +95,7 @@ App = class App {
 				posX = Utils.clamp(posX, minX, maxX);
 				var posY = mouseY;
 				posY = Utils.clamp(posY, minY, maxY);
-								
+
 				board.setDragVectorEnd(posX, posY);
 			};
 
