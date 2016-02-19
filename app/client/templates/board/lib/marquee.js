@@ -1,6 +1,4 @@
-"use strict";
-
-class Marquee {
+Marquee = class Marquee {
   constructor() {
     this.shown = false;
   }

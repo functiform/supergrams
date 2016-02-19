@@ -1,9 +1,7 @@
-'use strict';
-
-class Board {
+Board = class Board {
 
 	constructor(width, height) {
-		this.dictionary = wordsDictionary;
+		this.dictionary = {}; // used to receive words dictionary, need to solve problem of loading client dictionary
 
 		this.width  = height;
 		this.height = width;
@@ -18,7 +16,7 @@ class Board {
 
 		this.tiles = []; // hold tiles
 
-		this.constructGrid(); 
+		this.constructGrid();
 		this.constructPile();
 		this.shufflePile();
 
@@ -35,9 +33,9 @@ class Board {
 	}
 
 	setDragVectorStart(x, y) {
-		this.startVector = { 
+		this.startVector = {
 			x: x,
-			y: y 
+			y: y
 		};
 	}
 
@@ -116,7 +114,7 @@ class Board {
 		tile.startDragging();
 
 		tile.state = TileState.SELECTING;
-		
+
 		if (setAdjacent) {
 			var x = tile.gridX,
 				y = tile.gridY;
@@ -261,12 +259,18 @@ class Board {
 			var coord = {x: this.tileSize * tile.currentX,
 						 y: this.tileSize * tile.currentY};
 
-			if (coord.x > xMin && coord.y > yMin && coord.x < xMax && coord.y < yMax) {
+			if (coord.x + this.tileSize / 2 > xMin && coord.y + this.tileSize / 2 > yMin && coord.x - this.tileSize / 2 < xMax && coord.y - this.tileSize / 2 < yMax) {
 				tile.state = TileState.SELECTING;
 			} else {
 				tile.state = TileState.REGULAR;
 			}
 		}.bind(this))
+	}
+
+	deselectTiles() {
+		this.tiles.forEach(function(tile){
+			tile.state = TileState.REGULAR;
+		});
 	}
 
 	validate() {
