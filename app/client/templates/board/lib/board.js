@@ -40,27 +40,21 @@ Board = class Board {
 	}
 
 	getSelectedTiles() {
-		return this.tiles.filter(
-			function(tile) {
-				return tile.state === TileState.SELECTING;
-			}
-		);
+		return this.tiles.filter((tile) => {
+			return tile.state === TileState.SELECTING;
+		});
 	}
 
 	getUnselectedTiles() {
-		return this.tiles.filter(
-			function(tile) {
-				return tile.state !== TileState.SELECTING;
-			}
-		);
+		return this.tiles.filter((tile) => {
+			return tile.state !== TileState.SELECTING;
+		});
 	}
 
 	getDraggedTiles() {
-		return this.tiles.filter(
-			function(tile) {
+		return this.tiles.filter((tile) => {
 				return tile.isDragging();
-			}
-		);
+		});
 	}
 
 	unselectAllTiles() {
@@ -101,7 +95,7 @@ Board = class Board {
 	}
 
 	dragSelectedTiles() {
-		this.getSelectedTiles().forEach( function(tile) {
+		this.getSelectedTiles().forEach((tile) => {
 			tile.startDragging();
 		}.bind(this));
 	}
@@ -240,7 +234,7 @@ Board = class Board {
 		}
 
 		if (letter.length === 1 && letter.match(/[a-z]/i)) { // validate letter
-			if (this.grid[x][y] === null){
+			if (this.grid[x][y] === null) {
 				tile.setGridCoord(x, y);
 				this.grid[x][y] = tile;
 				this.tiles.push(tile);
@@ -255,7 +249,7 @@ Board = class Board {
 	}
 
 	selectTiles(xMin, yMin, xMax, yMax) {
-		this.tiles.forEach(function(tile){
+		this.tiles.forEach((tile) => {
 			var coord = {x: this.tileSize * tile.currentX,
 						 y: this.tileSize * tile.currentY};
 
@@ -264,17 +258,17 @@ Board = class Board {
 			} else {
 				tile.state = TileState.REGULAR;
 			}
-		}.bind(this))
+		}.bind(this));
 	}
 
 	deselectTiles() {
-		this.tiles.forEach(function(tile){
+		this.tiles.forEach((tile) => {
 			tile.state = TileState.REGULAR;
 		});
 	}
 
 	validate() {
-		if (!this.isOneIsland()){
+		if (!this.isOneIsland()) {
 			return false;
 		} else {
 			var invalidWords = [];
@@ -285,14 +279,14 @@ Board = class Board {
 	}
 
 	validateRows(invalidWords, grid) {
-		for (var i = 0; i < grid.length; i++){
+		for (var i = 0; i < grid.length; i++) {
 			this.validateRow(invalidWords, grid[i]);
 		}
 	}
 
 	validateRow(invalidWords, row) {
 		var words = this.getWords(row);
-		for (var i = 0; i < words.length; i++){
+		for (var i = 0; i < words.length; i++) {
 			this.validateWord(invalidWords, words[i]);
 		}
 	}
@@ -319,8 +313,8 @@ Board = class Board {
 	}
 
 	transpose(matrix) {
-		var x = matrix[0].map(function (_, col) {
-			return matrix.map(function (row) {
+		var x = matrix[0].map((_, col) => {
+			return matrix.map((row) => {
 				return row[col];
 			});
 		});
@@ -328,15 +322,15 @@ Board = class Board {
 	}
 
 	isOneIsland() {
-		var tgrid = this.grid.map(function(arr) {
+		var tgrid = this.grid.map((arr) => {
 		    return arr.slice();
 		});
 
-		if (tgrid==null || tgrid.length==0 || tgrid[0].length==0) return 0;
+		if (tgrid === null || tgrid.length === 0 || tgrid[0].length === 0) return 0;
 
-		function merge(i, j){
+		function merge(i, j) {
 		    //validity checking
-		    if(i<0 || j<0 || i>tgrid.length-1 || j>tgrid[0].length-1)
+		    if (i < 0 || j < 0 || i > tgrid.length - 1 || j > tgrid[0].length - 1)
 		        return;
 
 		    //if current cell is water or visited
@@ -346,19 +340,19 @@ Board = class Board {
 		    tgrid[i][j] = null;
 
 		    //merge all adjacent land
-		    merge(i-1, j);
-		    merge(i+1, j);
-		    merge(i, j-1);
-		    merge(i, j+1);
+		    merge(i - 1, j);
+		    merge(i + 1, j);
+		    merge(i, j - 1);
+		    merge(i, j + 1);
 		}
 
 		var count = 0;
 
-	    for (var i=0; i<tgrid.length; i++) {
-	        for (var j=0; j<tgrid[0].length; j++) {
-	            if(tgrid[i][j] !== null){
+	    for (var i = 0; i < tgrid.length; i++) {
+	        for (var j = 0; j < tgrid[0].length; j++) {
+	            if (tgrid[i][j] !== null){
 	                count++;
-	                if (count > 1){
+	                if (count > 1) {
 	                	return false;
 	                }
 	                merge(i, j);
@@ -386,5 +380,4 @@ Board = class Board {
 			selectedTiles[i].draw(context);
 		}
 	}
-
 }

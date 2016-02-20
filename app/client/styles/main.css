@@ -8,6 +8,11 @@ body, html {
 
 canvas {
 	position: absolute;
+	cursor: pointer;
+}
+
+canvas:active {
+	cursor: -webkit-grabbing;
 }
 
 * {

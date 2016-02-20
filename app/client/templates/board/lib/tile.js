@@ -1,21 +1,16 @@
 Tile = class Tile {
+
 	constructor(letter, board) {
 		this.letter = letter;
 		this.board = board;
-
 		this.gridX = -1;
 		this.gridY = -1;
-
 		this.targetX = -1.0;
 		this.targetY = -1.0;
-
 		this.currentX = -1.0;
 		this.currentY = -1.0;
-
 		this.dragging = false;
-
 		this.setEaseAmount(0.3);
-
 		this.state = TileState.REGULAR;
 	}
 
@@ -33,8 +28,10 @@ Tile = class Tile {
 
 	stopDragging() {
 		this.dragging = false;
+		
 		var x = this.snapToGridX(this.targetX),
 		  	y = this.snapToGridY(this.targetY);
+		
 		if (this.move(x, y)) {
 			this.state = TileState.REGULAR;
 		}
@@ -55,6 +52,7 @@ Tile = class Tile {
 		}
 
 		var otherTile = this.board.tile(x, y);
+		
 		if (otherTile) {
 			if (otherTile.state !== TileState.SELECTING) {
 				otherTile.moveToClosest(); 
@@ -164,7 +162,7 @@ Tile = class Tile {
 		    case TileState.NEW:
 		        return Color.RED;
 		    default:
-		        throw 'Invalid enum value for TileState'
+		        throw 'Invalid enum value for TileState';
 		};
 	}
 
@@ -183,7 +181,7 @@ Tile = class Tile {
 		    case TileState.NEW:
 		        return Color.RED;
 		    default:
-		        throw 'Invalid enum value for TileState'
+		        throw 'Invalid enum value for TileState';
 		};
 	}
 
@@ -202,7 +200,7 @@ Tile = class Tile {
 		    case TileState.NEW:
 		        return "1";
 		    default:
-		        throw 'Invalid enum value for TileState'
+		        throw 'Invalid enum value for TileState';
 		};
 	}
 
@@ -211,32 +209,18 @@ Tile = class Tile {
 	        y = this.board.tileSize * this.currentY,
 	        rad = this.board.tileSize / 2;
 
-	    function drawRoundedRectangle(x, y, size, radius) {
-	    	context.beginPath();
-	    	context.moveTo(x + radius, y);
-	    	context.lineTo(x + size - radius, y);
-	    	context.quadraticCurveTo(x + size, y, x + size, y + radius);
-	    	context.lineTo(x + size, y + size - radius);
-	    	context.quadraticCurveTo(x + size, y + size, x + size - radius, y + size);
-	    	context.lineTo(x + radius, y + size);
-	    	context.quadraticCurveTo(x, y + size, x, y + size - radius);
-	    	context.lineTo(x, y + radius);
-	    	context.quadraticCurveTo(x, y, x + radius, y);
-	    	context.closePath();
-	    	context.fill();
-	    };
-
 	    context.beginPath();
-
 		context.fillStyle = this.fillColor();
 		context.strokeStyle = this.strokeColor();
+		
 		if (this.state == TileState.SELECTING) {
 			context.shadowColor = Color.YELLOW;
 			context.shadowOffsetX = 0;
 			context.shadowOffsetY = 0;
 			context.shadowBlur = 8;
 		}
-		drawRoundedRectangle(x-rad + 1, y-rad + 1, this.board.tileSize - 2, 5);
+
+		Utils.drawRoundedSquare(context, x-rad + 1, y-rad + 1, this.board.tileSize - 2, 5);
 		context.shadowBlur = 0;
 
 		if (this.strokeThickness() !== "0") {

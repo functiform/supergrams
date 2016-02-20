@@ -10,13 +10,18 @@ function draw(){
 }
 
 Template.board.onCreated(function() {
-	$.getScript("https://use.typekit.net/rih2ssh.js", function() {
-		try{Typekit.load({ async: true });}catch(e){ console.log(e); }
-	});
+	
 });
 
 Template.board.onRendered(function() {
-	app = new App();
-	updateTimer = setInterval(update, 1000/60);
-	drawTimer = setInterval(draw, 1000/60);
+	$.getScript("https://use.typekit.net/rih2ssh.js", function() {
+		try {
+			Typekit.load({ async: true });
+			app = new App();
+			updateTimer = setInterval(update, 1000/60);
+			drawTimer = setInterval(draw, 1000/60);
+		} catch(e) {
+			console.log(e);
+		}
+	});
 });
