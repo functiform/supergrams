@@ -7,6 +7,9 @@ Board = class Board {
 		this.height = width;
 
 		this.tileSize = 50;
+		this.tileWidth = 50;
+		this.tileHeight = 67;
+
 		this.transX = 0;
 		this.transY = 0;
 
@@ -221,7 +224,7 @@ Board = class Board {
 	}
 
 	toWorld(c) {
-		return c * 50 + 50;
+		return c * this.tileSize + this.tileSize;
 	}
 
 	insert(tile, toCoord) {

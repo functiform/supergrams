@@ -12,7 +12,7 @@ App = class App {
 		this.setIsDown(false);
 		this.setLastCoords(-300, -600);
 		this.setStartCoords(0, 0);
-		this.setEaseAmount(0.3);
+		this.setEaseAmount(0.5);
 
 		this.setCurrentTransCoords(-300, -600);
 		this.setTargetTransCoords(-300, -600);
@@ -89,6 +89,7 @@ App = class App {
 		if (this.shifting) {
 			var clampX = Utils.clamp(offsetX - this.startCoords[0], -1500, 0),
 				clampY = Utils.clamp(offsetY - this.startCoords[1], -1500, 0);  
+			
 			this.setLastCoords(clampX, clampY);
 	    	this.board.setTransX(this.lastCoords[0]);
 			this.board.setTransY(this.lastCoords[1]);
