@@ -38,8 +38,8 @@ Tile = class Tile {
 	}
 
 	canvasCoord() {
-		return { x: this.board.tileSize * this.currentX + this.board.transX,
-		         y: this.board.tileSize * this.currentY + this.board.transY };
+		return { x: this.board.tileWidth * this.currentX + this.board.transX,
+		         y: this.board.tileHeight * this.currentY + this.board.transY };
 	}
 
 	move(x, y) {
@@ -123,19 +123,19 @@ Tile = class Tile {
 	}
 
 	worldToGridX(x) {
-		return (x - this.board.transX) / this.board.tileSize;
+		return (x - this.board.transX) / this.board.tileWidth;
 	}
 
 	worldToGridY(y) {
-		return (y - this.board.transY) / this.board.tileSize;
+		return (y - this.board.transY) / this.board.tileHeight;
 	}
 
 	worldToGridNoOffsetX(x) {
-		return x / this.board.tileSize;
+		return x / this.board.tileWidth;
 	}
 
 	worldToGridNoOffsetY(y) {
-		return y / this.board.tileSize;
+		return y / this.board.tileHeight;
 	}
 
 	setTarget(x, y) {
@@ -205,9 +205,10 @@ Tile = class Tile {
 	}
 
 	draw(context) {
-	    var x = this.board.tileSize * this.currentX,
-	        y = this.board.tileSize * this.currentY,
-	        rad = this.board.tileSize / 2;
+	    var x = this.board.tileWidth * this.currentX,
+	        y = this.board.tileHeight * this.currentY,
+	        radX = this.board.tileWidth / 2,
+	        radY = this.board.tileHeight / 2;
 
 	    context.beginPath();
 		context.fillStyle = this.fillColor();
@@ -220,17 +221,20 @@ Tile = class Tile {
 			context.shadowBlur = 8;
 		}
 
-		Utils.drawRoundedSquare(context, x-rad + 1, y-rad + 1, this.board.tileSize - 2, 5);
+		Utils.drawRoundedRectangle(context, x-radX + 1, y-radY + 1, this.board.tileWidth - 2, this.board.tileHeight - 2, 5); // TODO: Add width / height for rect
 		context.shadowBlur = 0;
 
 		if (this.strokeThickness() !== "0") {
 			context.lineWidth = this.strokeThickness();
 		}
 
+		var img = document.getElementById("img-face");
+		context.drawImage(img, x - radX / 2 - 1, y - radY * 0.75);
+
 		context.fillStyle =  this.strokeColor();
 		context.font = "40px aw-conqueror-carved-one";
 		context.textAlign = "center";
-		context.fillText(this.letter, x, y + rad / 2);
+		context.fillText(this.letter, x, y + radX * 0.9);
 	}
 
 	update() {

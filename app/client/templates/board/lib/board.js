@@ -6,9 +6,8 @@ Board = class Board {
 		this.width  = height;
 		this.height = width;
 
-		this.tileSize = 50;
 		this.tileWidth = 50;
-		this.tileHeight = 67;
+		this.tileHeight = 65; // 67
 
 		this.transX = 0;
 		this.transY = 0;
@@ -85,12 +84,13 @@ Board = class Board {
 		var coord = tile.canvasCoord(),
 			x = coord.x,
 			y = coord.y,
-			halfsize = this.tileSize / 2;
+			halfWidth = this.tileWidth / 2,
+			halfHeight = this.tileHeight / 2;
 
-		return mx > x - halfsize
-		    && mx < x + halfsize
-		    && my > y - halfsize
-		    && my < y + halfsize;
+		return mx > x - halfWidth
+		    && mx < x + halfWidth
+		    && my > y - halfHeight
+		    && my < y + halfHeight;
 	}
 
 	isDraggingTile() {
@@ -223,8 +223,12 @@ Board = class Board {
 		}
 	}
 
-	toWorld(c) {
-		return c * this.tileSize + this.tileSize;
+	toWorldX(c) {
+		return c * this.tileWidth + this.tileWidth;
+	}
+
+	toWorldY(c) {
+		return c * this.tileHeight + this.tileHeight;
 	}
 
 	insert(tile, toCoord) {
@@ -253,10 +257,13 @@ Board = class Board {
 
 	selectTiles(xMin, yMin, xMax, yMax) {
 		this.tiles.forEach((tile) => {
-			var coord = {x: this.tileSize * tile.currentX,
-						 y: this.tileSize * tile.currentY};
+			var coord = {x: this.tileWidth * tile.currentX,
+						 y: this.tileHeight * tile.currentY};
 
-			if (coord.x + this.tileSize / 2 > xMin && coord.y + this.tileSize / 2 > yMin && coord.x - this.tileSize / 2 < xMax && coord.y - this.tileSize / 2 < yMax) {
+			if (coord.x + this.tileWidth / 2 > xMin
+			 && coord.y + this.tileHeight / 2 > yMin 
+			 && coord.x - this.tileWidth / 2 < xMax 
+			 && coord.y - this.tileHeight / 2 < yMax) {
 				tile.state = TileState.SELECTING;
 			} else {
 				tile.state = TileState.REGULAR;

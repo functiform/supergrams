@@ -4,15 +4,15 @@ Utils = {
 		return (num < min) ? min : ((num > max) ? max : num);
 	},
 
-	drawRoundedSquare: function(context, x, y, size, radius) {
+	drawRoundedRectangle: function(context, x, y, w, h, radius) {
     	context.beginPath();
     	context.moveTo(x + radius, y);
-    	context.lineTo(x + size - radius, y);
-    	context.quadraticCurveTo(x + size, y, x + size, y + radius);
-    	context.lineTo(x + size, y + size - radius);
-    	context.quadraticCurveTo(x + size, y + size, x + size - radius, y + size);
-    	context.lineTo(x + radius, y + size);
-    	context.quadraticCurveTo(x, y + size, x, y + size - radius);
+    	context.lineTo(x + w - radius, y);
+    	context.quadraticCurveTo(x + w, y, x + w, y + radius);
+    	context.lineTo(x + w, y + h - radius);
+    	context.quadraticCurveTo(x + w, y + h, x + w - radius, y + h);
+    	context.lineTo(x + radius, y + h);
+    	context.quadraticCurveTo(x, y + h, x, y + h - radius);
     	context.lineTo(x, y + radius);
     	context.quadraticCurveTo(x, y, x + radius, y);
     	context.closePath();

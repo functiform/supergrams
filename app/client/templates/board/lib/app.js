@@ -134,11 +134,12 @@ App = class App {
 		if (this.board.isDraggingTile() && !this.marqueeing) {
 			var [mouseX, mouseY] = this.getRelativeCoords(clientX, clientY);
 
-			var shapeRad = this.board.tileSize / 2,
-				minX = shapeRad,
-				maxX = this.canvas.width - shapeRad,
-				minY = shapeRad,
-				maxY = this.canvas.height - shapeRad;
+			var shapeW = this.board.tileWidth / 2,
+				shapeH = this.board.tileHeight / 2,
+				minX = shapeW,
+				maxX = this.canvas.width - shapeW,
+				minY = shapeH,
+				maxY = this.canvas.height - shapeH;
 
 			var posX = Utils.clamp(mouseX, minX, maxX),
 				posY = Utils.clamp(mouseY, minY, maxY);
